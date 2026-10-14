@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Geografía Interactiva • 93 Salas de Escape</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-dark: #0369a1;
+      --primary-soft: #e0f2fe;
+      --accent: #ea580c;
+      --accent-soft: #fff7ed;
+      --success: #16a34a;
+      --success-soft: #dcfce7;
+      --danger: #dc2626;
+      --danger-soft: #fee2e2;
+      --dark: #0f172a;
+      --surface: #ffffff;
+      --bg: #f8fafc;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0f172a;
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1rem 0.5rem;
+    }
+
+    /* MOCKUP SMARTPHONE */
+    .phone-container {
+      width: 100%;
+      max-width: 430px;
+      height: 900px;
+      background: var(--dark);
+      border-radius: 42px;
+      box-shadow: 0 25px 60px -15px rgba(0,0,0,0.6), 0 0 0 10px #1e293b, 0 0 0 12px #334155;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* BARRA DE ESTADO */
+    .status-bar {
+      height: 42px;
+      background: var(--surface);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 1.25rem;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--dark);
+      z-index: 50;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .island { width: 95px; height: 18px; background: var(--dark); border-radius: 999px; }
+
+    /* BANNER DE OFERTA HOY */
+    .promo-banner {
+      background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+      color: white;
+      padding: 0.6rem 0.9rem;
+      font-size: 0.73rem;
+      text-align: center;
+      line-height: 1.35;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    .promo-banner strong { color: #fef08a; text-decoration: underline; }
+    .countdown-pill {
+      display: inline-block;
+      background: rgba(0,0,0,0.3);
+      padding: 0.15rem 0.5rem;
+      border-radius: 6px;
+      font-family: monospace;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      margin-top: 0.2rem;
+    }
+
+    /* CABECERA TOP */
+    .nav-header {
+      background: var(--surface);
+      padding: 0.65rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      min-height: 52px;
+      z-index: 40;
+    }
+    .btn-back {
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      border: none;
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .nav-title { font-size: 0.95rem; font-weight: 800; color: var(--dark); text-align: center; flex: 1; }
+
+    /* PANTALLAS SCROLLEABLES */
+    .screen-body {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--bg);
+      position: relative;
+      scroll-behavior: smooth;
+    }
+    .screen-body::-webkit-scrollbar { display: none; }
+
+    .app-screen { display: none; padding: 1rem; animation: appFade 0.2s ease-out; }
+    .app-screen.active { display: block; }
+    @keyframes appFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* HOME GRID */
+    .hero-box { text-align: center; padding: 0.75rem 0.5rem 1rem; }
+    .hero-box h1 { font-size: 1.35rem; font-weight: 800; color: var(--dark); margin-bottom: 0.25rem; }
+    .hero-box h1 span { color: var(--primary); }
+    .hero-box p { font-size: 0.8rem; color: var(--text-muted); }
+
+    .app-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-top: 0.5rem; }
+    .app-tile {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 0.75rem;
+      text-align: center;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+      transition: transform 0.15s;
+    }
+    .app-tile:active { transform: scale(0.96); }
+    .tile-badge {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .app-tile h3 { font-size: 0.85rem; font-weight: 800; color: var(--dark); line-height: 1.2; margin-bottom: 0.2rem; }
+    .app-tile span { font-size: 0.7rem; color: var(--text-muted); }
+
+    /* ACORDEONES CATÁLOGO */
+    .search-mobile { width: 100%; padding: 0.65rem 0.85rem; border-radius: 12px; border: 1px solid var(--border); font-size: 0.82rem; margin-bottom: 0.75rem; outline: none; }
+    .acc-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 0.6rem; overflow: hidden; }
+    .acc-btn { width: 100%; padding: 0.85rem 0.95rem; background: transparent; border: none; display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left; font-family: inherit; }
+    .acc-btn h4 { font-size: 0.88rem; font-weight: 800; color: var(--dark); }
+    .acc-btn span { font-size: 0.7rem; color: var(--text-muted); }
+    .acc-content { display: none; padding: 0.5rem 0.75rem 0.75rem; background: #fafafa; border-top: 1px solid #f1f5f9; }
+    .acc-item.open .acc-content { display: block; }
+    .acc-item.open .acc-arrow { transform: rotate(180deg); color: var(--primary); }
+
+    .card-room-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.7rem;
+      margin-bottom: 0.45rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-room-item:active { border-color: var(--primary); transform: scale(0.98); }
+
+    /* FICHA DETALLE SALA CATÁLOGO */
+    .box-info-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.15rem; margin-bottom: 0.75rem; }
+    .box-info-card h4 { font-size: 0.92rem; font-weight: 800; color: var(--dark); display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.35rem; }
+    .box-info-card p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.45; }
+
+    /* ================= SALA DE ESCAPE EN VIVO ================= */
+    .game-header {
+      background: #0f172a;
+      color: white;
+      border-radius: 14px;
+      padding: 0.85rem;
+      margin-bottom: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .game-timer { font-family: monospace; font-size: 1.15rem; font-weight: 800; color: #38bdf8; }
+    .game-score { font-size: 0.78rem; font-weight: 700; color: #facc15; }
+
+    .story-card {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-left: 4px solid var(--primary);
+      border-radius: 10px;
+      padding: 0.75rem;
+      font-size: 0.78rem;
+      color: #1e3a8a;
+      margin-bottom: 0.85rem;
+      line-height: 1.4;
+    }
+
+    .enigma-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      margin-bottom: 0.85rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .enigma-title {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: 0.4rem;
+      display: flex;
+      justify-content: space-between;
+    }
+    .digit-tag {
+      background: #fef08a;
+      color: #854d0e;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 0.15rem 0.45rem;
+      border-radius: 6px;
+    }
+
+    /* COMPONENTES DE ENIGMAS */
+    .vf-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.45rem 0;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.76rem;
+    }
+    .vf-btns button {
+      padding: 0.2rem 0.55rem;
+      font-size: 0.7rem;
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .vf-btns button.selected { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .reorder-list { display: flex; flex-direction: column; gap: 0.4rem; margin: 0.5rem 0; }
+    .reorder-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      padding: 0.45rem 0.65rem;
+      border-radius: 8px;
+      font-size: 0.74rem;
+    }
+    .arrow-btns button {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      width: 24px;
+      height: 24px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .fill-text { font-size: 0.8rem; line-height: 1.8; color: var(--dark); }
+    .fill-select {
+      padding: 0.2rem 0.4rem;
+      border-radius: 6px;
+      border: 1px solid var(--primary);
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: white;
+      color: var(--primary-dark);
+    }
+
+    .tactile-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.45rem; margin-top: 0.5rem; }
+    .tactile-btn {
+      padding: 0.6rem;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+    }
+    .tactile-btn.active { background: #0284c7; color: white; border-color: #0284c7; }
+
+    /* BARRA DE PISTAS */
+    .hints-bar {
+      margin-top: 0.85rem;
+      padding-top: 0.65rem;
+      border-top: 1px dashed var(--border);
+      display: flex;
+      gap: 0.35rem;
+    }
+    .btn-hint {
+      flex: 1;
+      padding: 0.35rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      font-size: 0.68rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .hint-alert {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      padding: 0.5rem;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      color: #92400e;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    .btn-verify {
+      width: 100%;
+      background: var(--dark);
+      color: white;
+      border: none;
+      padding: 0.55rem;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 0.6rem;
+    }
+
+    /* CAJA DEL CANDADO FINAL */
+    .lock-box {
+      background: #0f172a;
+      color: white;
+      border-radius: 14px;
+      padding: 1.25rem 1rem;
+      text-align: center;
+      margin-top: 1rem;
+    }
+    .lock-digits-input {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin: 0.85rem 0;
+    }
+    .digit-in {
+      width: 44px;
+      height: 50px;
+      font-size: 1.5rem;
+      font-weight: 800;
+      text-align: center;
+      border-radius: 8px;
+      border: 2px solid #38bdf8;
+      background: #1e293b;
+      color: white;
+      outline: none;
+    }
+
+    /* BOTÓN FLOTANTE DOSSIER TEÓRICO */
+    .btn-floating-dossier {
+      position: absolute;
+      top: 105px;
+      right: 12px;
+      background: #0284c7;
+      color: white;
+      border: none;
+      padding: 0.35rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      cursor: pointer;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    /* MODAL DE APUNTES */
+    .modal-dossier {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: none;
+      padding: 1.25rem;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-dossier.open { display: flex; }
+    .dossier-card {
+      background: white;
+      border-radius: 18px;
+      padding: 1.25rem;
+      max-height: 85%;
+      overflow-y: auto;
+      width: 100%;
+    }
+
+    /* BOTÓN VOLVER ARRIBA */
+    .btn-top {
+      position: absolute;
+      bottom: 68px;
+      right: 14px;
+      width: 36px;
+      height: 36px;
+      background: var(--dark);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      cursor: pointer;
+      z-index: 35;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    /* BARRA TABS INFERIOR */
+    .bottom-bar {
+      height: 60px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 50;
+      padding: 0 0.5rem;
+    }
+    .tab-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.15rem;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.65rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .tab-btn.active { color: var(--primary); }
+    .tab-btn span.icon { font-size: 1.25rem; }
+
+    @media (max-width: 480px) {
+      body { padding: 0; background: white; }
+      .phone-container { max-width: 100vw; height: 100vh; border-radius: 0; box-shadow: none; border: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="phone-container">
+    
+    <!-- BARRA DE ESTADO DE CELULAR -->
+    <div class="status-bar">
+      <span id="liveClock">12:00</span>
+      <div class="island"></div>
+      <span>100% 🔋</span>
+    </div>
+
+    <!-- BANNER DE CONSULTA Y CUENTA REGRESIVA -->
+    <div class="promo-banner">
+      ⚡ <strong>Consultanos vía Chat por ofertas especiales</strong> abonando <strong>HOY <span id="currentDateText">--/--</span></strong>
+      <div>⏳ Tiempo restante: <span class="countdown-pill" id="promoCountdown">00h 00m 00s</span></div>
+    </div>
+
+    <!-- CABECERA DE NAVEGACIÓN -->
+    <header class="nav-header">
+      <button class="btn-back" id="btnHeaderBack" onclick="goBackScreen()">←</button>
+      <div class="nav-title" id="screenTitle">GeoApp • 93 Salas</div>
+      <span style="font-size: 0.65rem; background:#0284c7; color:white; padding:0.2rem 0.5rem; border-radius:6px; font-weight:800;">2026</span>
+    </header>
+
+    <!-- CUERPO PRINCIPAL DEL TELÉFONO -->
+    <main class="screen-body" id="mainScreen">
+
+      <!-- ==================== PANTALLA 1: HOME ==================== -->
+      <section class="app-screen active" id="scr-home">
+        <div class="hero-box">
+          <h1>Salas de Escape <span>Geografía</span></h1>
+          <p>Manual interactivo para secundaria (1° a 5° Año)</p>
+        </div>
+
+        <div class="app-grid">
+          <!-- BOTÓN SALA DE PRUEBA -->
+          <div class="app-tile" style="border: 2px solid #0284c7; background: #f0f9ff;" onclick="openNavScreen('sala-login', 'Sala de Prueba en Vivo')">
+            <div class="tile-badge" style="background: #0284c7; color: white;">🚀</div>
+            <h3 style="color: #0369a1;">Probar Sala en Vivo</h3>
+            <span>Misión Viento Zonda</span>
+          </div>
+
+          <!-- BOTÓN CATÁLOGO -->
+          <div class="app-tile" onclick="openNavScreen('catalogo', 'Catálogo de 93 Salas')">
+            <div class="tile-badge" style="background: #e0f2fe; color: #0369a1;">🗺️</div>
+            <h3>93 Salas</h3>
+            <span>1° a 5° Año</span>
+          </div>
+
+          <div class="app-tile" onclick="openNavScreen('metodo', 'Metodología')">
+            <div class="tile-badge" style="background: #fef3c7; color: #b45309;">⏱️</div>
+            <h3>¿Cómo se Usa?</h3>
+            <span>Dinámica 30 min</span>
+          </div>
+
+          <div class="app-tile" onclick="openNavScreen('offline', 'Modo Desconectado')">
+            <div class="tile-badge" style="background: #dcfce7; color: #15803d;">📶</div>
+            <h3>Sin Internet</h3>
+            <span>Micro-sitios locales</span>
+          </div>
+
+          <div class="app-tile" onclick="openNavScreen('papel', 'Versión Papel')">
+            <div class="tile-badge" style="background: #f3e8ff; color: #7e22ce;">📄</div>
+            <h3>Modo Papel</h3>
+            <span>Enigmas en sobres</span>
+          </div>
+
+          <div class="app-tile" onclick="openDocenteSector()">
+            <div class="tile-badge" style="background: #fee2e2; color: #b91c1c;">🔐</div>
+            <h3>Torre Docente</h3>
+            <span>Claves y Soluciones</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== PANTALLA 2: CATÁLOGO DE 93 SALAS ==================== -->
+      <section class="app-screen" id="scr-catalogo">
+        <input type="text" id="catSearch" class="search-mobile" placeholder="🔍 Buscar por tema (clima, soja, litio, MERCOSUR)..." oninput="searchCatalog()">
+
+        <!-- 1° Año -->
+        <div class="acc-item open" id="acc1">
+          <button class="acc-btn" onclick="toggleAcc('acc1')">
+            <div>
+              <h4>1° Año: Geografía General y Ambiental</h4>
+              <span>15 Salas de Escape</span>
+            </div>
+            <span class="acc-arrow">▼</span>
+          </button>
+          <div class="acc-content" id="list-c1"></div>
+        </div>
+
+        <!-- 2° Año -->
+        <div class="acc-item" id="acc2">
+          <button class="acc-btn" onclick="toggleAcc('acc2')">
+            <div>
+              <h4>2° Año: Geografía de América</h4>
+              <span>18 Salas de Escape</span>
+            </div>
+            <span class="acc-arrow">▼</span>
+          </button>
+          <div class="acc-content" id="list-c2"></div>
+        </div>
+
+        <!-- 3° Año -->
+        <div class="acc-item" id="acc3">
+          <button class="acc-btn" onclick="toggleAcc('acc3')">
+            <div>
+              <h4>3° Año: Geografía de Argentina</h4>
+              <span>19 Salas de Escape</span>
+            </div>
+            <span class="acc-arrow">▼</span>
+          </button>
+          <div class="acc-content" id="list-c3"></div>
+        </div>
+
+        <!-- 4° Año -->
+        <div class="acc-item" id="acc4">
+          <button class="acc-btn" onclick="toggleAcc('acc4')">
+            <div>
+              <h4>4° Año: Geopolítica y Mundo</h4>
+              <span>17 Salas de Escape</span>
+            </div>
+            <span class="acc-arrow">▼</span>
+          </button>
+          <div class="acc-content" id="list-c4"></div>
+        </div>
+
+        <!-- 5° Año -->
+        <div class="acc-item" id="acc5">
+          <button class="acc-btn" onclick="toggleAcc('acc5')">
+            <div>
+              <h4>5° Año: Conflictos Territoriales</h4>
+              <span>18 Salas de Escape</span>
+            </div>
+            <span class="acc-arrow">▼</span>
+          </button>
+          <div class="acc-content" id="list-c5"></div>
+        </div>
+
+        <!-- Evaluaciones -->
+        <div class="acc-item" id="accEval">
+          <button class="acc-btn" onclick="toggleAcc('accEval')">
+            <div>
+              <h4>Evaluaciones Integradoras</h4>
+              <span>6 Módulos Diagnósticos</span>
+            </div>
+            <span class="acc-arrow">▼</span>
+          </button>
+          <div class="acc-content" id="list-cEval"></div>
+        </div>
+      </section>
+
+      <!-- ==================== PANTALLA 3: FICHA DE SALA SELECCIONADA ==================== -->
+      <section class="app-screen" id="scr-room-detail">
+        <div class="box-info-card" id="roomDetailCard"></div>
+      </section>
+
+      <!-- ==================== PANTALLA 4: LOGIN / INICIO DE LA SALA DE PRUEBA ==================== -->
+      <section class="app-screen" id="scr-sala-login">
+        <div style="text-align: center; padding: 1.5rem 0.5rem;">
+          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🎈</div>
+          <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--dark);">SALA 5: LA BÚSQUEDA DEL VIENTO</h2>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1.25rem;">Geografía de 3° Año • Misión de Navegación Atmosférica</p>
+
+          <!-- Tarjeta de Acceso de Estudiantes -->
+          <div class="box-info-card" style="text-align: left;">
+            <label style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">
+              Contraseña de Vuelo (Estudiantes):
+            </label>
+            <input type="text" id="studentPassInput" placeholder="Ingresa la clave brindada por tu docente..." style="width:100%; padding: 0.65rem; border-radius: 8px; border: 1px solid var(--border); font-size: 0.85rem; font-weight: 800; text-transform: uppercase; margin-bottom: 0.75rem;">
+            <button class="btn-verify" style="background: var(--primary); padding: 0.75rem;" onclick="checkStudentLogin()">
+              SINTONIZAR RADAR E INICIAR MISIÓN 🚀
+            </button>
+            <div id="loginError" style="color: var(--danger); font-size: 0.72rem; font-weight: 700; margin-top: 0.5rem; display: none;">
+              ❌ Contraseña de sala incorrecta. Solicítala a la Torre de Control (Docente).
+            </div>
+          </div>
+
+          <!-- Sector Docente / Acceso Exclusivo -->
+          <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px dashed var(--border);">
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">¿Eres el profesor a cargo?</p>
+            <button class="btn-verify" style="background: #1e293b;" onclick="openDocenteSector()">
+              🔐 INGRESAR A LA TORRE DE CONTROL (DOCENTE)
+            </button>
+            <p style="font-size: 0.7rem; color: #ea580c; font-weight: 700; margin-top: 0.4rem;">
+              ℹ️ Contraseña docente para probar: <strong>DOCENTE</strong>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== PANTALLA 5: SECTOR DOCENTE (TORRE DE CONTROL) ==================== -->
+      <section class="app-screen" id="scr-sector-docente">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--dark);">Torre de Control [Docente]</h3>
+          <span style="font-size: 0.65rem; background: #dcfce7; color: #15803d; padding: 0.2rem 0.5rem; border-radius: 6px; font-weight: 800;">AUTENTICADO</span>
+        </div>
+
+        <!-- Claves -->
+        <div class="box-info-card" style="border-left: 4px solid #0284c7;">
+          <h4>🔑 Claves de la Sala</h4>
+          <p>• <strong>Clave para los Alumnos:</strong> <span style="background: #e0f2fe; color: #0369a1; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 800;">VIENTOS</span></p>
+          <p>• <strong>Código del Candado Final (4 Dígitos):</strong> <span style="background: #fef08a; color: #854d0e; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 800;">7394</span></p>
+        </div>
+
+        <!-- Solucionario de los 4 enigmas -->
+        <div class="box-info-card">
+          <h4>📋 Solucionario Oficial (4 Enigmas)</h4>
+          <p style="margin-bottom: 0.35rem;">• <strong>Enigma 1 (V/F):</strong> 1:V, 2:F, 3:V, 4:F, 5:V (Dígito obtenido: <strong>7</strong>).</p>
+          <p style="margin-bottom: 0.35rem;">• <strong>Enigma 2 (Secuencia Zonda):</strong> Barlovento húmedo → Ascenso y lluvia → Cima fría y seca → Descenso cálido Sotavento (Dígito: <strong>3</strong>).</p>
+          <p style="margin-bottom: 0.35rem;">• <strong>Enigma 3 (Completar Sudestada):</strong> [Atlántico] → [Río de la Plata] → [inundaciones] (Dígito: <strong>9</strong>).</p>
+          <p>• <strong>Enigma 4 (Radar Factores):</strong> Activar Latitud, Altitud, Disposición del Relieve y Distancia al Mar (Dígito: <strong>4</strong>).</p>
+        </div>
+
+        <!-- Temario Curricular -->
+        <div class="box-info-card">
+          <h4>📚 Ejes Curriculares Evaluados</h4>
+          <p>• <strong>Vientos Locales Argentinos:</strong> Origen y consecuencias del Zonda (Efecto Föhn), Pampero y Sudestada.</p>
+          <p>• <strong>Factores Modificadores del Clima:</strong> Latitud, relieve, altitud y continentalidad.</p>
+          <p>• <strong>Climas de Argentina:</strong> Diferenciación regional y Diagonal Árida.</p>
+        </div>
+
+        <!-- Adaptación Física a Papel -->
+        <div class="box-info-card">
+          <h4>📄 Adaptación Física (Sin Tecnología)</h4>
+          <p>1. Imprime los 4 enigmas y colócalos dentro de 4 sobres cerrados ("Sector 1", "Sector 2", etc.).</p>
+          <p>2. Entrega el sobre 1 a cada tripulación junto con el Manual de Apuntes Meteorológicos impreso.</p>
+          <p>3. Cada vez que resuelven un enigma en papel, se acercan a la mesa docente a verificar y recibir el sobre siguiente y el dígito correspondiente.</p>
+          <p>4. El código final <strong>7394</strong> abre un candado físico de una caja con el certificado de aterrizaje.</p>
+        </div>
+
+        <!-- Guía Pedagógica -->
+        <div class="box-info-card">
+          <h4>🎓 Guía Pedagógica y Manejo de Aula</h4>
+          <p>• Forma tripulaciones de 3 o 4 alumnos con 1 celular por mesa.</p>
+          <p>• Explícales que el globo caerá si el reloj de 10 minutos llega a cero.</p>
+          <p>• Si tienen dudas conceptuales, indícales tocar la <strong>"Carpeta de Apuntes"</strong> para investigar en lugar de pedirte la respuesta.</p>
+        </div>
+
+        <button class="btn-verify" style="background: var(--primary);" onclick="openNavScreen('sala-game', 'Sala en Vivo (10 min)')">
+          INICIAR SIMULACIÓN COMO ESTUDIANTE 🎮
+        </button>
+      </section>
+
+      <!-- ==================== PANTALLA 6: SALA EN VIVO (EL JUEGO) ==================== -->
+      <section class="app-screen" id="scr-sala-game">
+        
+        <!-- Botón flotante Dossier de Apuntes -->
+        <button class="btn-floating-dossier" onclick="toggleDossier(true)">
+          📁 Carpeta de Apuntes
+        </button>
+
+        <!-- Barra de Estado del Juego -->
+        <div class="game-header">
+          <div>
+            <div style="font-size: 0.68rem; color: #94a3b8; font-weight: 800;">ALTURA: DESCENDIENDO</div>
+            <div class="game-timer" id="escapeTimer">10:00</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 0.68rem; color: #94a3b8; font-weight: 800;">CALIFICACIÓN</div>
+            <div class="game-score" id="liveScore">10.00 / 10 pts</div>
+          </div>
+        </div>
+
+        <!-- Historia inmersiva imperativa -->
+        <div class="story-card">
+          ⚡ <strong>¡ALERTA METEOROLÓGICA CRÍTICA!</strong> Los motores del globo aerostático científico han fallado sobre la Cordillera. Son pilotos de prueba: tienen <strong>10 minutos</strong> antes de estrellarse. Analicen la presión, predigan los vientos locales y descifren los 4 sectores para obtener los códigos de desaceleración y desplegar el paracaídas.
+        </div>
+
+        <!-- ================= ENIGMA 1: VERDADERO O FALSO (5 ÍTEMS) ================= -->
+        <div class="enigma-box" id="box-e1">
+          <div class="enigma-title">
+            <span>SECTOR 01: TELEMETRÍA CLIMÁTICA</span>
+            <span class="digit-tag" id="tag-e1">Bloqueado 🔒</span>
+          </div>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+            Evalúa la veracidad de los siguientes 5 reportes meteorológicos:
+          </p>
+
+          <div class="vf-row">
+            <span>1. El Zonda nace húmedo en el Océano Pacífico.</span>
+            <div class="vf-btns">
+              <button onclick="setVF(0, true, this)">V</button>
+              <button onclick="setVF(0, false, this)">F</button>
+            </div>
+          </div>
+          <div class="vf-row">
+            <span>2. La Sudestada suele generar días soleados y secos.</span>
+            <div class="vf-btns">
+              <button onclick="setVF(1, true, this)">V</button>
+              <button onclick="setVF(1, false, this)">F</button>
+            </div>
+          </div>
+          <div class="vf-row">
+            <span>3. El Pampero es un frente frío del Suroeste.</span>
+            <div class="vf-btns">
+              <button onclick="setVF(2, true, this)">V</button>
+              <button onclick="setVF(2, false, this)">F</button>
+            </div>
+          </div>
+          <div class="vf-row">
+            <span>4. A mayor altitud en montaña, mayor temperatura.</span>
+            <div class="vf-btns">
+              <button onclick="setVF(3, true, this)">V</button>
+              <button onclick="setVF(3, false, this)">F</button>
+            </div>
+          </div>
+          <div class="vf-row">
+            <span>5. La Diagonal Árida cruza de NOA a Patagonia.</span>
+            <div class="vf-btns">
+              <button onclick="setVF(4, true, this)">V</button>
+              <button onclick="setVF(4, false, this)">F</button>
+            </div>
+          </div>
+
+          <div class="hints-bar">
+            <button class="btn-hint" onclick="useHint(1, 1)">💡 Pista 1 (Gratis)</button>
+            <button class="btn-hint" onclick="useHint(1, 2)">⚠️ Pista 2 (-0.25 pts)</button>
+            <button class="btn-hint" onclick="useHint(1, 3)">🚨 Pista 3 (Sin Ptos)</button>
+          </div>
+          <div class="hint-alert" id="hint-text-1"></div>
+
+          <button class="btn-verify" onclick="verifyE1()">CALIBRAR TELEMETRÍA (ENIGMA 1)</button>
+        </div>
+
+        <!-- ================= ENIGMA 2: ACOMODAR SECUENCIA (SUBIR / BAJAR) ================= -->
+        <div class="enigma-box" id="box-e2">
+          <div class="enigma-title">
+            <span>SECTOR 02: CICLO DEL EFECTO FÖHN</span>
+            <span class="digit-tag" id="tag-e2">Bloqueado 🔒</span>
+          </div>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.4rem;">
+            Ordena cronológicamente las 4 etapas del Viento Zonda (desde que nace hasta Cuyo):
+          </p>
+
+          <div class="reorder-list" id="reorderList">
+            <!-- Renderizado dinámico -->
+          </div>
+
+          <div class="hints-bar">
+            <button class="btn-hint" onclick="useHint(2, 1)">💡 Pista 1 (Gratis)</button>
+            <button class="btn-hint" onclick="useHint(2, 2)">⚠️ Pista 2 (-0.25 pts)</button>
+            <button class="btn-hint" onclick="useHint(2, 3)">🚨 Pista 3 (Sin Ptos)</button>
+          </div>
+          <div class="hint-alert" id="hint-text-2"></div>
+
+          <button class="btn-verify" onclick="verifyE2()">VALIDAR RUTA TÉRMICA (ENIGMA 2)</button>
+        </div>
+
+        <!-- ================= ENIGMA 3: COMPLETAR TEXTO CON DESPLEGABLE ================= -->
+        <div class="enigma-box" id="box-e3">
+          <div class="enigma-title">
+            <span>SECTOR 03: ALERTA DE INUNDACIÓN</span>
+            <span class="digit-tag" id="tag-e3">Bloqueado 🔒</span>
+          </div>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+            Completa el informe hidrometeorológico seleccionando las palabras faltantes:
+          </p>
+
+          <div class="fill-text">
+            "La Sudestada se origina por un centro de alta presión en el océano 
+            <select class="fill-select" id="sel-e3-1">
+              <option value="">[Elegir Océano]</option>
+              <option value="pacifico">Pacífico</option>
+              <option value="atlantico">Atlántico</option>
+              <option value="antartico">Antártico</option>
+            </select>
+            que atrae vientos húmedos del sur. El viento impide el drenaje normal del 
+            <select class="fill-select" id="sel-e3-2">
+              <option value="">[Elegir Río]</option>
+              <option value="rio_plata">Río de la Plata</option>
+              <option value="rio_colorado">Río Colorado</option>
+              <option value="rio_bjo">Río Bermejo</option>
+            </select>
+            hacia el mar, provocando graves 
+            <select class="fill-select" id="sel-e3-3">
+              <option value="">[Elegir Fenómeno]</option>
+              <option value="nevadas">nevadas en la costa</option>
+              <option value="inundaciones">inundaciones ribereñas</option>
+              <option value="sequias">sequías extremas</option>
+            </select>
+            durante varios días."
+          </div>
+
+          <div class="hints-bar">
+            <button class="btn-hint" onclick="useHint(3, 1)">💡 Pista 1 (Gratis)</button>
+            <button class="btn-hint" onclick="useHint(3, 2)">⚠️ Pista 2 (-0.25 pts)</button>
+            <button class="btn-hint" onclick="useHint(3, 3)">🚨 Pista 3 (Sin Ptos)</button>
+          </div>
+          <div class="hint-alert" id="hint-text-3"></div>
+
+          <button class="btn-verify" onclick="verifyE3()">CONFIRMAR HIDROLOGÍA (ENIGMA 3)</button>
+        </div>
+
+        <!-- ================= ENIGMA 4: RADAR TÁCTIL (DINÁMICA DIFERENTE) ================= -->
+        <div class="enigma-box" id="box-e4">
+          <div class="enigma-title">
+            <span>SECTOR 04: RADAR DE FACTORES REALES</span>
+            <span class="digit-tag" id="tag-e4">Bloqueado 🔒</span>
+          </div>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.4rem;">
+            Toca la pantalla para activar <strong>ÚNICAMENTE los 4 factores geográficos reales</strong> que condicionan y modifican el clima:
+          </p>
+
+          <div class="tactile-grid">
+            <button class="tactile-btn" id="tb-0" onclick="toggleTactile(0)">Latitud Geográfica</button>
+            <button class="tactile-btn" id="tb-1" onclick="toggleTactile(1)">Fases Lunares ❌</button>
+            <button class="tactile-btn" id="tb-2" onclick="toggleTactile(2)">Altitud sobre el Nivel del Mar</button>
+            <button class="tactile-btn" id="tb-3" onclick="toggleTactile(3)">Horarios Ferroviarios ❌</button>
+            <button class="tactile-btn" id="tb-4" onclick="toggleTactile(4)">Disposición del Relieve</button>
+            <button class="tactile-btn" id="tb-5" onclick="toggleTactile(5)">Distancia al Mar (Continentalidad)</button>
+          </div>
+
+          <div class="hints-bar">
+            <button class="btn-hint" onclick="useHint(4, 1)">💡 Pista 1 (Gratis)</button>
+            <button class="btn-hint" onclick="useHint(4, 2)">⚠️ Pista 2 (-0.25 pts)</button>
+            <button class="btn-hint" onclick="useHint(4, 3)">🚨 Pista 3 (Sin Ptos)</button>
+          </div>
+          <div class="hint-alert" id="hint-text-4"></div>
+
+          <button class="btn-verify" onclick="verifyE4()">SINCRONIZAR FACTORES (ENIGMA 4)</button>
+        </div>
+
+        <!-- ================= CANDADO FINAL: DESPLIEGUE DEL PARACAÍDAS ================= -->
+        <div class="lock-box">
+          <div style="font-size: 0.8rem; font-weight: 800; color: #38bdf8; text-transform: uppercase;">
+            🪂 ATERRIZAJE DE EMERGENCIA (CANDADO FINAL)
+          </div>
+          <p style="font-size: 0.75rem; color: #cbd5e1; margin-top: 0.35rem;">
+            Ingresa en orden los 4 dígitos recolectados en los sectores:
+          </p>
+
+          <div class="lock-digits-input">
+            <input type="text" class="digit-in" id="d1" maxlength="1" placeholder="-">
+            <input type="text" class="digit-in" id="d2" maxlength="1" placeholder="-">
+            <input type="text" class="digit-in" id="d3" maxlength="1" placeholder="-">
+            <input type="text" class="digit-in" id="d4" maxlength="1" placeholder="-">
+          </div>
+
+          <button class="btn-verify" style="background: #10b981; padding: 0.75rem;" onclick="checkFinalLock()">
+            DESPLEGAR PARACAÍDAS Y ATERRIZAR 🛬
+          </button>
+          <div id="finalLockMsg" style="margin-top: 0.5rem; font-size: 0.75rem; font-weight: 700;"></div>
+        </div>
+
+      </section>
+
+      <!-- ==================== PANTALLA 7: ACTA FINAL / REPORTE ==================== -->
+      <section class="app-screen" id="scr-acta-final">
+        <div class="box-info-card" style="text-align: center; border-top: 4px solid #10b981;">
+          <div style="font-size: 2.2rem; margin-bottom: 0.25rem;">📜</div>
+          <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--dark);">ACTA OFICIAL DE DESEMPEÑO</h2>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem;">Misión de Supervivencia Atmosférica Superada</p>
+
+          <div style="background: #f8fafc; padding: 1rem; border-radius: 12px; margin-bottom: 1rem;">
+            <div style="font-size: 0.75rem; color: var(--text-muted);">CALIFICACIÓN FINAL</div>
+            <div style="font-size: 2.4rem; font-weight: 800; color: #0284c7;" id="actaFinalGrade">10.00 / 10</div>
+            <div style="font-size: 0.75rem; color: #16a34a; font-weight: 700;" id="actaTimeRemaining">Tiempo sobrante: 06:14</div>
+          </div>
+
+          <div style="text-align: left; font-size: 0.75rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.25rem;">
+            <div>• <strong>Sector 01 (V/F):</strong> <span id="acta-res-1">Resuelto</span></div>
+            <div>• <strong>Sector 02 (Secuencia):</strong> <span id="acta-res-2">Resuelto</span></div>
+            <div>• <strong>Sector 03 (Completar Texto):</strong> <span id="acta-res-3">Resuelto</span></div>
+            <div>• <strong>Sector 04 (Radar Factores):</strong> <span id="acta-res-4">Resuelto</span></div>
+            <div>• <strong>Penalizaciones por Pistas:</strong> <span id="acta-penalties">0.00 pts</span></div>
+          </div>
+
+          <button class="btn-verify" style="background: var(--primary);" onclick="openNavScreen('sala-login', 'Sala de Prueba')">
+            REINICIAR SALA DE ESCAPE 🔄
+          </button>
+        </div>
+      </section>
+
+      <!-- ==================== PANTALLAS DE INFORMACIÓN (MÉTODO, OFFLINE, PAPEL) ==================== -->
+      <section class="app-screen" id="scr-metodo">
+        <div class="box-info-card">
+          <h4>👥 1. Formar Tripulaciones</h4>
+          <p>Equipos de 3 o 4 alumnos con un solo celular por mesa. Estimula la deliberación y el análisis cara a cara.</p>
+        </div>
+        <div class="box-info-card">
+          <h4>🔑 2. Llave Docente Sincronizada</h4>
+          <p>La sala está bloqueada hasta que el profesor comparte la clave de despegue. Permite iniciar la clase a todos a la vez.</p>
+        </div>
+        <div class="box-info-card">
+          <h4>⏱️ 3. Límite de 30 Minutos</h4>
+          <p>Un temporizador visual genera inmersión inmediata. Los alumnos disponen de apuntes teóricos para no frustrarse.</p>
+        </div>
+        <div class="box-info-card">
+          <h4>🔒 4. Candado de 4 Dígitos</h4>
+          <p>Cada enigma otorga un código. Al combinarlos para salir, el sistema genera automáticamente el acta de autocalificación.</p>
+        </div>
+      </section>
+
+      <section class="app-screen" id="scr-offline">
+        <div class="box-info-card">
+          <h4>🌐 Sin Dependencia de Internet</h4>
+          <p>Son micro-sitios web interactivos. Una vez descargados o cargados en el navegador, no gastan datos ni requieren señal de WiFi.</p>
+        </div>
+        <div class="box-info-card">
+          <h4>📲 Cero Aplicaciones Externas</h4>
+          <p>Se ejecutan en Chrome, Safari, Edge o Firefox. Los alumnos no requieren registrarse con ningún correo electrónico.</p>
+        </div>
+      </section>
+
+      <section class="app-screen" id="scr-papel">
+        <div class="box-info-card">
+          <h4>📄 Dinámica en Sobres Físicos</h4>
+          <p>Imprime los enigmas y colócalos en sobres numerados. Los chicos entregan su resolución para recibir el siguiente enigma y su dígito.</p>
+        </div>
+        <div class="box-info-card">
+          <h4>🔐 Candado Real</h4>
+          <p>Los 4 dígitos abren un candado de combinación de una caja con el certificado de aterrizaje.</p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- MODAL POPUP: CARPETA VIRTUAL DE APUNTES -->
+    <div class="modal-dossier" id="modalDossier">
+      <div class="dossier-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+          <h3 style="font-size: 0.95rem; font-weight:800; color:#0369a1;">📁 Dossier de Apuntes Meteorológicos</h3>
+          <button style="border:none; background:#f1f5f9; padding:0.2rem 0.5rem; border-radius:6px; font-weight:800; cursor:pointer;" onclick="toggleDossier(false)">✕</button>
+        </div>
+        
+        <div style="font-size:0.74rem; line-height:1.55; color:var(--text);">
+          <p style="margin-bottom:0.5rem;"><strong>1. Viento Zonda (Efecto Föhn):</strong> Nace frío y húmedo en el Océano Pacífico. Al chocar con los Andes (Barlovento) asciende y se enfría descargando nevadas. Cruza la cumbre seco y al descender por Sotavento se comprime y recalienta fuertemente, llegando a Cuyo cálido y sofocante.</p>
+          <p style="margin-bottom:0.5rem;"><strong>2. El Pampero:</strong> Viento frío y seco del Suroeste que barre la humedad de la llanura pampeana, provocando cielos despejados y brusco descenso térmico.</p>
+          <p style="margin-bottom:0.5rem;"><strong>3. La Sudestada:</strong> Centro de alta presión sobre el Atlántico que atrae vientos del sur. Entra por el Río de la Plata cargado de humedad, frena el desagüe de los ríos e induce crecidas e inundaciones con lloviznas persistentes.</p>
+          <p><strong>4. Factores Climáticos Reales:</strong> Latitud (distancia al ecuador), Altitud (más frío en altura), Disposición del Relieve (barrera orográfica) y Continentalidad (distancia al mar).</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTÓN VOLVER ARRIBA -->
+    <button class="btn-top" id="btnScrollTop" onclick="scrollPhoneTop()">▲</button>
+
+    <!-- BARRA INFERIOR (TABS DE APP) -->
+    <nav class="bottom-bar">
+      <button class="tab-btn active" id="tab-home" onclick="clickTab('home', 'GeoApp • 93 Salas')">
+        <span class="icon">🏠</span>
+        <span>Inicio</span>
+      </button>
+      <button class="tab-btn" id="tab-sala-login" onclick="clickTab('sala-login', 'Sala de Prueba')">
+        <span class="icon">🚀</span>
+        <span>Sala Demo</span>
+      </button>
+      <button class="tab-btn" id="tab-catalogo" onclick="clickTab('catalogo', 'Catálogo de 93 Salas')">
+        <span class="icon">🗺️</span>
+        <span>Salas</span>
+      </button>
+      <button class="tab-btn" id="tab-docente" onclick="openDocenteSector()">
+        <span class="icon">🔐</span>
+        <span>Docente</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <script>
+    /* =====================================================================
+       1. BANNER: FECHA HOY Y CUENTA REGRESIVA DINÁMICA
+       ===================================================================== */
+    function updateDateAndCountdown() {
+      const now = new Date();
+      
+      // Fecha en español
+      const options = { weekday: 'short', day: 'numeric', month: 'short' };
+      const dateStr = now.toLocaleDateString('es-AR', options).toUpperCase();
+      document.getElementById('currentDateText').innerText = dateStr;
+
+      // Reloj en status bar
+      const hours = String(now.getHours()).padStart(2, '0');
+      const mins = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('liveClock').innerText = `${hours}:${mins}`;
+
+      // Cuenta regresiva hasta medianoche
+      const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+      const diff = endOfDay - now;
+
+      if (diff > 0) {
+        const h = Math.floor(diff / (1000 * 60 * 60));
+        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((diff % (1000 * 60)) / 1000);
+        document.getElementById('promoCountdown').innerText = 
+          `${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
+      }
+    }
+    setInterval(updateDateAndCountdown, 1000);
+    updateDateAndCountdown();
+
+    /* =====================================================================
+       2. GESTIÓN DE PANTALLAS (NAVEGACIÓN CON VOLVER ATRÁS)
+       ===================================================================== */
+    let screenStack = [{ id: 'home', title: 'GeoApp • 93 Salas' }];
+
+    function openNavScreen(screenId, title, pushHistory = true) {
+      if (pushHistory) {
+        screenStack.push({ id: screenId, title: title });
+      }
+
+      document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
+      const activeScr = document.getElementById(`scr-${screenId}`);
+      if (activeScr) activeScr.classList.add('active');
+
+      document.getElementById('screenTitle').innerText = title;
+
+      // Botón volver
+      const backBtn = document.getElementById('btnHeaderBack');
+      if (screenId === 'home') {
+        backBtn.style.display = 'none';
+      } else {
+        backBtn.style.display = 'flex';
+      }
+
+      // Actualizar tab activo
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      const tabTarget = document.getElementById(`tab-${screenId}`);
+      if (tabTarget) tabTarget.classList.add('active');
+
+      document.getElementById('mainScreen').scrollTop = 0;
+    }
+
+    function goBackScreen() {
+      if (screenStack.length > 1) {
+        screenStack.pop();
+        const prev = screenStack[screenStack.length - 1];
+        openNavScreen(prev.id, prev.title, false);
+      } else {
+        openNavScreen('home', 'GeoApp • 93 Salas', false);
+      }
+    }
+
+    function clickTab(id, title) {
+      screenStack = [{ id: 'home', title: 'GeoApp • 93 Salas' }];
+      openNavScreen(id, title, true);
+    }
+
+    function openDocenteSector() {
+      const pass = prompt("Acceso Docente: Ingrese la contraseña maestra (Prueba: DOCENTE):");
+      if (pass && pass.trim().toUpperCase() === "DOCENTE") {
+        openNavScreen('sector-docente', 'Torre de Control');
+      } else if (pass !== null) {
+        alert("Contraseña docente incorrecta. Ingrese 'DOCENTE'.");
+      }
+    }
+
+    /* =====================================================================
+       3. CATÁLOGO COMPLETO DE SALAS & DESPLEGABLES
+       ===================================================================== */
+    const catalogDB = [
+      // 1° AÑO
+      { id: 1, year: 1, title: "Operación Cartografía Perdida", sub: "Red Geográfica Global", narrative: "El satélite GEO-ORIÓN perdió sus coordenadas de órbita. Deben restaurar paralelos y meridianos antes de perder la señal.", topics: ["Puntos Cardinales", "Paralelos y Meridianos", "Latitud y Longitud", "Escalas"] },
+      { id: 2, year: 1, title: "La Bóveda del Cartógrafo Real", sub: "Elementos del Mapa", narrative: "En el sótano de la Real Sociedad Geográfica se mezclaron escalas y referencias de mapas mundiales.", topics: ["Tipos de Mapas", "Escala Numérica y Gráfica", "Referencias", "Curvas de Nivel"] },
+      { id: 3, year: 1, title: "Misión Acuífero Virtual", sub: "Huella Hídrica y Consumo", narrative: "Alerta en la central hídrica por sobreexplotación de recursos invisibles. Desbloquea la matriz midiendo el agua virtual.", topics: ["Agua Virtual", "Huella Verde, Azul y Gris", "Comercio Global de Agua", "Consumo"] },
+      { id: 4, year: 1, title: "Crisis en la Falla Global", sub: "Tectónica de Placas", narrative: "El sensor volcánico detecta magma en ascenso. Deben equilibrar las presiones de las placas litosféricas.", topics: ["Deriva Continental", "Bordes de Placa", "Dorsales y Fosas", "Cinturón de Fuego"] },
+      { id: 5, year: 1, title: "Expedición Modelado del Relieve", sub: "Fuerzas Endógenas y Exógenas", narrative: "Calcula los procesos geológicos que crearon cordilleras y cañones para calibrar el simulador.", topics: ["Orogénesis", "Meteorización", "Erosión Fluvial y Eólica", "Sedimentación"] },
+      { id: 6, year: 1, title: "Alerta Meteorológica Global", sub: "Tiempo y Clima", narrative: "Una tormenta electromagnética alteró los barómetros espaciales confundiendo registros diarios con patrones climáticos.", topics: ["Tiempo vs Clima", "Presión y Humedad", "Efecto Föhn", "Factores Modificadores"] },
+      { id: 7, year: 1, title: "El Santuario de los Biomas", sub: "Adaptaciones de Flora y Fauna", narrative: "Los biomas del mundo se descalibran. Restaura el equilibrio entre clima, fauna y flora adaptada.", topics: ["Selva, Sabana y Desierto", "Plantas Xerófilas", "Zonas en Altura", "Biomas"] },
+      { id: 8, year: 1, title: "El Gran Mapa Hidrográfico", sub: "Aguas Continentales", narrative: "Compuertas fluviales fuera de control. Identifica cuencas endorreicas y exorreicas para salvar poblados.", topics: ["Cuencas Hidrográficas", "Partes de un Río", "Deltas y Estuarios", "Régimen Fluvial"] },
+      { id: 9, year: 1, title: "Operación Resiliencia Urbana", sub: "Gestión del Riesgo", narrative: "Una tormenta azota la ciudad. Demuestra que las catástrofes no son 'naturales' sino construcciones sociales.", topics: ["Amenaza vs Vulnerabilidad", "Ecuación del Riesgo", "Prevención", "Mapas de Riesgo"] },
+      { id: 10, year: 1, title: "Protocolo Código Dual", sub: "Desastres Naturales vs Tecnológicos", narrative: "Fuga industrial cruzada con tornados. Separa el origen biológico y técnico de la catástrofe.", topics: ["Riesgos Antrópicos", "Casos Históricos", "Chernóbil y Fukushima", "Protocolos"] },
+      { id: 11, year: 1, title: "Operación Tierra Viva", sub: "Suelos y Desertificación", narrative: "El sobrepastoreo y el monocultivo agotan los nutrientes del horizonte superficial del suelo.", topics: ["Horizontes del Suelo", "Erosión Hídrica y Eólica", "Siembra Directa", "Rotación"] },
+      { id: 12, year: 1, title: "Proyecto Escudo Helios", sub: "Capa de Ozono y Efecto Invernadero", narrative: "Alinea los sensores atmosféricos para detener la radiación ultravioleta y medir gases GEI.", topics: ["Capa de Ozono", "Calentamiento Global", "Gases GEI", "Protocolo Montreal"] },
+      { id: 13, year: 1, title: "La Bóveda Demográfica", sub: "Pirámides de Población", narrative: "Los servidores de población sufren desfasaje en los registros por edad y sexo.", topics: ["Pirámides Progresivas y Regresivas", "Transición Demográfica", "Natalidad y Mortalidad"] },
+      { id: 14, year: 1, title: "Operación Corredor Humanitario", sub: "Refugiados y Asilo", narrative: "Establece corredores seguros aplicando el derecho internacional para comunidades desplazadas.", topics: ["Migraciones Forzadas", "Convención de Ginebra", "No Devolución", "ACNUR"] },
+      { id: 15, year: 1, title: "Operación Matriz IDH 2050", sub: "Desarrollo Humano", narrative: "Calcula los indicadores que van más allá del PBI: salud, educación y esperanza de vida.", topics: ["Dimensiones IDH", "Desigualdad", "Amartya Sen", "Ingreso per Cápita"] },
+
+      // 2° AÑO
+      { id: 16, year: 2, title: "El Códice de Tolomeo", sub: "Mercator vs Peters", narrative: "Descifra la pugna entre la visión eurocéntrica de Mercator y la proyección de Peters.", topics: ["Proyección Cilíndrica", "Deformación Continental", "Eurocentrismo", "Antípodas"] },
+      { id: 17, year: 2, title: "El Códice Panamericano", sub: "Criterios de División", narrative: "Múltiples prismas dividen a América: físico, cultural y socioeconómico.", topics: ["América Latina y Anglosajona", "Centro, Norte y Sur", "Desarrollo y Dependencia"] },
+      { id: 18, year: 2, title: "El Enigma de los Dos Mundos", sub: "Cosmovisión Precolombina", narrative: "Recupera los cálculos cartográficos mayas e incas frente a la concepción astronómica griega.", topics: ["Tawantinsuyu", "Códices Mayas", "Cosmovisión Indígena", "Cartografía"] },
+      { id: 19, year: 2, title: "La Cartografía de la Conquista", sub: "Tratado de Tordesillas", narrative: "En la Casa de Contratación se guardan los mapas que transformaron los límites del Nuevo Mundo.", topics: ["Padrón Real", "Tratado de Tordesillas", "Mapas Mestizos", "Navegación"] },
+      { id: 20, year: 2, title: "La Forja del Relieve Americano", sub: "Andes, Macizos y Llanuras", narrative: "El observatorio geofísico detecta tensiones en las tres grandes franjas del continente.", topics: ["Cordillera de los Andes", "Escudo Canádico", "Llanura Chaco-Pampeana", "Misisipi"] },
+      { id: 21, year: 2, title: "El Laberinto Hídrico", sub: "Cuencas de América", narrative: "Desbloquea las compuertas de los grandes sistemas fluviales y acuíferos subterráneos.", topics: ["Cuenca del Amazonas", "Cuenca del Plata", "Acuífero Guaraní", "Ogallala"] },
+      { id: 22, year: 2, title: "El Código Climático", sub: "Climogramas y Vientos", narrative: "El radar detecta la influencia de corrientes de Humboldt y vientos alisios en los climogramas.", topics: ["Corrientes Marinas", "Amplitud Térmica", "Climas Cálidos y Fríos", "Diagonal Árida"] },
+      { id: 23, year: 2, title: "Supervivencia en los Biomas", sub: "Recursos de América", narrative: "La deforestación y el avance agropecuario amenazan la selva y las praderas americanas.", topics: ["Selva Amazónica", "Bosque Caducifolio", "Estepa Patagónica", "Manejo Forestal"] },
+      { id: 24, year: 2, title: "El Tesoro Precolombino y la Explotación", sub: "Mita Colonial en Potosí", narrative: "Compara la reciprocidad del Sumak Kawsay con el régimen minero colonial español.", topics: ["Mita y Encomienda", "Cerro Rico de Potosí", "Monopolio Español", "Ayllu"] },
+      { id: 25, year: 2, title: "Alerta Contaminación", sub: "Inversión Térmica y Smog", narrative: "Inspecciona Santiago de Chile, CDMX y São Paulo resolviendo emergencias atmosféricas urbanas.", topics: ["Inversión Térmica", "Smog Fotoquímico", "Basurales a Cielo Abierto", "RSU"] },
+      { id: 26, year: 2, title: "El Rompecabezas Soberano", sub: "Límites y Malvinas", narrative: "Audita tratados fronterizos, enclaves coloniales y reclamos de soberanía argentina sobre Malvinas.", topics: ["Uti Possidetis Iuris", "Cuestión Malvinas", "Enclaves Coloniales", "Guantánamo"] },
+      { id: 27, year: 2, title: "El Engranaje Económico", sub: "Modelos MAE, ISI y Neoliberal", narrative: "Sincroniza los hitos económicos que estructuraron América Latina en los siglos XIX y XX.", topics: ["Modelo Agroexportador", "Industrialización ISI", "Consenso de Washington", "Deuda"] },
+      { id: 28, year: 2, title: "La Frontera Extractiva", sub: "Agronegocio y Minería", narrative: "Comunidades campesinas resisten el desmonte masivo y el uso de cianuro en la cordillera.", topics: ["Siembra Directa y Glifosato", "Megaminería", "Ley de Bosques", "Soberanía Alimentaria"] },
+      { id: 29, year: 2, title: "El Circuito Global", sub: "Maquilas y Servicios", narrative: "Inspecciona terminales de ensamblaje en México y centros de telecomunicación en Centroamérica.", topics: ["Maquiladoras", "Outsourcing", "Balanza Comercial", "Cadenas Globales"] },
+      { id: 30, year: 2, title: "El Desafío Demográfico", sub: "Dinámica y Empleo", narrative: "Audita el envejecimiento poblacional y la precariedad laboral informal en las metrópolis.", topics: ["Transición Demográfica", "PEA e Informalidad", "Migración Rural-Urbana", "Remesas"] },
+      { id: 31, year: 2, title: "Atrapados en la Metrópolis", sub: "Gentrificación Urbana", narrative: "Denuncia la expulsión de sectores populares por la especulación inmobiliaria y countries.", topics: ["Centro-Periferia", "Gentrificación", "Derecho a la Ciudad", "Fragmentación"] },
+      { id: 32, year: 2, title: "Misión Integración Regional", sub: "MERCOSUR y Corredores", narrative: "Acuerdos comerciales y corredores bioceánicos buscan conectar el Atlántico con el Pacífico.", topics: ["MERCOSUR", "T-MEC", "Corredores Bioceánicos", "Integración Energética"] },
+      { id: 33, year: 2, title: "La Batalla por los Recursos y Derechos", sub: "Litio, Agua y Soberanía", narrative: "Analiza la puja por el Acuífero Guaraní, el Triángulo del Litio y la consulta previa indígena.", topics: ["Triángulo del Litio", "Convenio 169 OIT", "Vaca Muerta", "Movimientos Sociales"] },
+
+      // 3° AÑO
+      { id: 34, year: 3, title: "El Mapa Fragmentado", sub: "Construcción Territorial", narrative: "Reconstruye los tratados limítrofes y la delimitación de fronteras de la Argentina en 1881.", topics: ["Límites y Fronteras", "Tratado de 1881", "Soberanía Territorial", "Cartografía"] },
+      { id: 35, year: 3, title: "Coordenadas del Frío", sub: "Mar y Antártida Argentina", narrative: "Valida los protocolos del Sector Antártico y la plataforma marítima según la CONVEMAR.", topics: ["CONVEMAR", "Mar Territorial y ZEE", "Tratado Antártico", "Sector Antártico"] },
+      { id: 36, year: 3, title: "El Archivo Federal", sub: "Jerarquía Política Nacional", narrative: "Un malware desconfiguró la relación de coparticipación entre Nación, Provincias y Municipios.", topics: ["Estado Federal", "Autonomía Provincial", "CABA", "Coparticipación"] },
+      { id: 37, year: 3, title: "Expedición Relieve Argentino", sub: "Sistemas Orográficos", narrative: "Traza la ruta de evacuación identificando cordilleras, sierras pampeanas y mesetas.", topics: ["Cordillera de los Andes", "Sierras Pampeanas", "Meseta Patagónica", "Llanura"] },
+      { id: 38, year: 3, title: "La Búsqueda del Viento", sub: "Vientos Locales", narrative: "Tripulación en globo atrapada en una tormenta debe anticipar el Zonda, Pampero o Sudestada.", topics: ["Viento Zonda", "Pampero", "Sudestada", "Climas de Argentina"] },
+      { id: 39, year: 3, title: "El Secreto del Acuífero", sub: "Cuencas y Reservas Subterráneas", narrative: "Derrame químico detectado. Sella compuertas para resguardar la Cuenca del Plata y el Guaraní.", topics: ["Cuenca del Plata", "Río Paraná y Uruguay", "Acuífero Guaraní", "Vertiente Atlántica"] },
+      { id: 40, year: 3, title: "Guardianes de la Biodiversidad", sub: "Ecorregiones Argentinas", narrative: "Cazadores furtivos atacan reservas. Restablece barreras en Yungas, Chaco y Bosques Andinos.", topics: ["Ecorregiones Argentinas", "Yungas y Chaco", "Selva Misionera", "Parques Nacionales"] },
+      { id: 41, year: 3, title: "La Fórmula del Litio", sub: "Minería y Vaca Muerta", narrative: "Ciberdefensa ante la apropiación de salares en la Puna y gas de esquisto en Neuquén.", topics: ["Triángulo del Litio", "Vaca Muerta y Fracking", "Impacto Ambiental", "Soberanía"] },
+      { id: 42, year: 3, title: "Código Verde: Emergencia", sub: "Ley de Bosques y Humedales", narrative: "Alerta por desmontes ilegales en el norte e incendios intencionales en el Delta del Paraná.", topics: ["Ley de Bosques 26.331", "Inundaciones", "Humedales", "Desmonte"] },
+      { id: 43, year: 3, title: "El Censo Perdido", sub: "Demografía Nacional", narrative: "Falsifican la densidad y pirámides de población. Restablece la verdad censal argentina.", topics: ["Censos Nacionales", "Densidad Poblacional", "Transición Demográfica", "AMBA"] },
+      { id: 44, year: 3, title: "Ruta de Escape", sub: "Dinámica Migratoria", narrative: "Analiza los flujos de migración interna rural-urbana y las corrientes limítrofes.", topics: ["Migraciones Internas", "Inmigración Limítrofe", "Éxodo al AMBA", "Fuga de Cerebros"] },
+      { id: 45, year: 3, title: "Misión Calidad de Vida", sub: "Indicadores NBI e IDH", narrative: "Audita canastas de pobreza e indigencia para asignar fondos a provincias postergadas.", topics: ["NBI", "Línea de Pobreza e Indigencia", "Canasta Básica", "Desigualdad Regional"] },
+      { id: 46, year: 3, title: "El Laberinto de Asfalto", sub: "Sistema Urbano y AMBA", narrative: "Colapso vial y semafórico en la metrópolis argentina. Analiza la macrocefalia urbana.", topics: ["Macrocefalia", "AMBA y Conurbano", "Ciudades Intermedias", "Transporte"] },
+      { id: 47, year: 3, title: "Éxodo Rural", sub: "Estructura Agraria", narrative: "Defiende a familias campesinas ante el desalojo de tierras ancestrales sin escriturar.", topics: ["Latifundio y Minifundio", "Agricultura Familiar", "Tenencia de la Tierra", "Despoblación"] },
+      { id: 48, year: 3, title: "El Enigma de la Soja", sub: "Circuito Pampeano", narrative: "Sabotaje informático en las terminales portuarias cerealeras del Gran Rosario.", topics: ["Circuito de la Soja", "Gran Rosario y Up-River", "Paquete Tecnológico", "Puertos"] },
+      { id: 49, year: 3, title: "Oro Verde y Blanco", sub: "Circuitos Extrapampeanos", narrative: "Plaga biológica ataca oasis de Cuyo, algodonales chaqueños y yerbales de Misiones.", topics: ["Yerba Mate y Té", "Circuito Vitivinícola", "Caña de Azúcar", "Algodón"] },
+      { id: 50, year: 3, title: "El Código Industrial", sub: "Frente Fluvial y Parques", narrative: "IA toma el control de refinerías y automotrices en el eje Buenos Aires-Rosario.", topics: ["Frente Fluvial Industrial", "Régimen Tierra del Fuego", "Parques Industriales", "Manufactura"] },
+      { id: 51, year: 3, title: "La Red Invisible", sub: "Conectividad y ARSAT", narrative: "Restaura los cables submarinos de Las Toninas y la conexión con satélites ARSAT.", topics: ["Fibra Óptica Las Toninas", "Soberanía ARSAT", "REFEFO", "Brecha Digital"] },
+      { id: 52, year: 3, title: "El Puerto Global", sub: "Comercio Exterior", narrative: "Desbloquea exportaciones agroindustriales frenadas por aranceles en la aduana marítima.", topics: ["Exportaciones MOA y MOI", "Balanza Comercial", "MERCOSUR", "Socios Comerciales"] },
+
+      // 4° AÑO
+      { id: 53, year: 4, title: "El Archivo Cartográfico Global", sub: "Geopolítica del Mapa", narrative: "Descifra cómo la cartografía oficial y los SIG se usan como herramientas de dominación.", topics: ["Geopolítica Cartográfica", "SIG", "Teledetección", "Curvas de Nivel"] },
+      { id: 54, year: 4, title: "Identidades Ocultas", sub: "Naciones sin Estado", narrative: "Desentraba cerrojos diplomáticos en torno a pueblos como los kurdos y los saharauis.", topics: ["Estado-Nación", "Naciones sin Estado", "Estados Plurinacionales", "Soberanía"] },
+      { id: 55, year: 4, title: "La Bóveda de la Deuda", sub: "FMI y Sistema Global", narrative: "Audita las condicionalidades de préstamos impuestas desde los acuerdos de Bretton Woods.", topics: ["FMI y Banco Mundial", "Bretton Woods", "Consenso de Washington", "Deuda Externa"] },
+      { id: 56, year: 4, title: "El Directorio en las Sombras", sub: "Empresas Transnacionales", narrative: "Investiga cómo las multinacionales deslocalizan fábricas y usan guaridas fiscales.", topics: ["Empresas Transnacionales", "Cadenas Globales", "Precios de Transferencia", "Guaridas"] },
+      { id: 57, year: 4, title: "El Código del Desarrollo", sub: "Más Allá del PBI", narrative: "Demuestra los sesgos del PBI frente a índices alternativos como Gini y desarrollo humano.", topics: ["Crítica al PBI", "IDH", "Coeficiente de Gini", "Amartya Sen"] },
+      { id: 58, year: 4, title: "Guardianes de la Tierra", sub: "Economía Circular", narrative: "Reprograma los algoritmos económicos globales adaptándolos a los límites biofísicos del planeta.", topics: ["Informe Brundtland", "Capacidad de Carga", "Economía Circular", "Sustentabilidad"] },
+      { id: 59, year: 4, title: "Semillas de Resistencia", sub: "Patentes y Soberanía", narrative: "Una corporación privatiza semillas ancestrales. Libera germoplasmas comunitarios.", topics: ["Soberanía Alimentaria", "Patentes UPOV", "Agroecología", "Vía Campesina"] },
+      { id: 60, year: 4, title: "El Último Barril", sub: "Geopolítica Petrolera", narrative: "Crisis mundial por el control de puntos marítimos neurálgicos como Ormuz y Malaca.", topics: ["OPEP y Crisis del 73", "Estrecho de Ormuz", "Pico de Hubbert", "Transición Energética"] },
+      { id: 61, year: 4, title: "El Acuífero Escondido", sub: "Geopolítica del Agua", narrative: "Neutraliza maniobras privadas para controlar reservas acuíferas transfronterizas vitales.", topics: ["Acuíferos Transfronterizos", "Acuífero Guaraní", "Derecho al Agua", "Megasequías"] },
+      { id: 62, year: 4, title: "El Reloj Demográfico Global", sub: "Envejecimiento y Pensiones", narrative: "Equilibra las proyecciones en sociedades con pirámides regresivas en Europa y Asia.", topics: ["Transición Demográfica", "Envejecimiento", "Tasa de Dependencia", "Sistemas Previsionales"] },
+      { id: 63, year: 4, title: "Misión Equidad", sub: "Pobreza Multidimensional", narrative: "Desafía el enfoque de ingresos aplicando el Índice de Pobreza Multidimensional (IPM).", topics: ["IPM Oxford", "Línea de Pobreza Global", "Privaciones Básicas", "Desigualdad"] },
+      { id: 64, year: 4, title: "Fronteras de Papel", sub: "Crisis de Refugiados", narrative: "Aplica convenios internacionales para evitar deportaciones forzadas en zonas de tránsito.", topics: ["Apatridia", "Convención de Ginebra", "Muros Fronterizos", "Asilo"] },
+      { id: 65, year: 4, title: "El Nodo Principal", sub: "Ciudades Globales", narrative: "Analiza el rol de Nueva York, Tokio y Londres como sedes del capital corporativo global.", topics: ["Ciudades Globales (GaWC)", "Servicios Avanzados", "Ciudad Dual", "Segregación"] },
+      { id: 66, year: 4, title: "Operación Gentrificación", sub: "Brecha de Renta Urbana", narrative: "Frena la demolición de un barrio obrero impidiendo la especulación inmobiliaria masiva.", topics: ["Rent Gap", "Turistificación", "Refuncionalización", "Desalojos"] },
+      { id: 67, year: 4, title: "El Silicon Valley Oculto", sub: "Tecnopolos Mundiales", narrative: "Rastrea la aglomeración de industrias del conocimiento desde California a Bangalore.", topics: ["Economía del Conocimiento", "Tecnopolos", "Triple Hélice", "Capital de Riesgo"] },
+      { id: 68, year: 4, title: "La Plaza en Disputa", sub: "Espacio Público", narrative: "Organiza asambleas vecinales contra la privatización de plazas y parques históricos.", topics: ["Derecho a la Ciudad", "Espacio Público", "David Harvey", "Protesta Urbana"] },
+      { id: 69, year: 4, title: "El Laberinto de la Nueva Ruralidad", sub: "Periurbano y Agroturismo", narrative: "Un dron agrícola se extravía entre cinturones hortícolas y parcelas de agroturismo.", topics: ["Nueva Ruralidad", "Periurbano", "Turismo Rural", "Circuitos Cortos"] },
+
+      // 5° AÑO
+      { id: 70, year: 5, title: "La Posición en el Capitalismo", sub: "Modelos Históricos", narrative: "Audita expedientes para desarticular un nuevo ciclo de reprimarización económica.", topics: ["Modelo Agroexportador", "Industrialización ISI", "Neoliberalismo 90s", "Reprimarización"] },
+      { id: 71, year: 5, title: "Actores Agrarios y Tierras", sub: "Tenencia Campesina", narrative: "Frena el avance de pools de siembra sobre tierras protegidas por la Ley 26.160.", topics: ["Pools de Siembra", "Ley 26.160", "MOCASE", "Arrendamiento Rural"] },
+      { id: 72, year: 5, title: "Sabotaje en la Cadena Sojera", sub: "Complejo Portuario Rosario", narrative: "Ciberataque paraliza los puertos cerealeros del Paraná; reprograma la logística hidrovial.", topics: ["Up-River Paraná", "Hidrovía Paraguay-Paraná", "Cerealeras Transnacionales", "Impacto"] },
+      { id: 73, year: 5, title: "Sabotaje en Oleoductos", sub: "Privatización y Estatización YPF", narrative: "Accede a las válvulas analizando los ciclos de hidrocarburos de los 90 a la reestatización.", topics: ["Vaca Muerta", "Privatización de YPF", "Reestatización 2012", "Soberanía Energética"] },
+      { id: 74, year: 5, title: "Colapso de la Matriz Fósil", sub: "Transición Energética", narrative: "Sustituye la dependencia de gas y fueloil integrando parques eólicos y solares.", topics: ["Ley 27.191 RenovAr", "Parques Eólicos", "Plantas Solares", "Biomasa"] },
+      { id: 75, year: 5, title: "Extranjerización y Oligopolios", sub: "Concentración Económica", narrative: "Desencripta contratos que revelan el cierre de miles de pequeñas fábricas nacionales.", topics: ["Monopolios", "Quiebra de PyMEs", "Inversión Extranjera", "Apertura Comercial"] },
+      { id: 76, year: 5, title: "Corralito Financiero Activo", sub: "Crisis de 2001", narrative: "Atrapados en la bóveda bancaria: reconstruye los días del corralito y el estallido social.", topics: ["Convertibilidad", "Decreto 1570", "Estallido Social 2001", "Trueque y Asambleas"] },
+      { id: 77, year: 5, title: "El Monocultivo y Esterilización Agrícola", sub: "Degradación del Suelo", narrative: "Sintetiza una solución orgánica para reparar campos erosionados por agroquímicos intensivos.", topics: ["Paquete Soja RR", "Glifosato", "Pueblos Fumigados", "Agroecología"] },
+      { id: 78, year: 5, title: "Incursión en el Espinal", sub: "Desmonte y Bosque Nativo", narrative: "Topadoras ilegales avanzan en la reserva. Interpón el freno satelital de la Ley de Bosques.", topics: ["Ley de Bosques Nativos", "Ordenamiento Territorial", "Biodiversidad", "Espinal"] },
+      { id: 79, year: 5, title: "Contaminación de Reservas Hídricas", sub: "Cuenca Riachuelo y Minería", narrative: "Monitorea vertidos industriales y relaves mineros que ponen en riesgo agua potable.", topics: ["Matanza-Riachuelo", "Megaminería", "Ley de Glaciares", "GIRH"] },
+      { id: 80, year: 5, title: "Corrupción en los Índices Sociales", sub: "Estadísticas del INDEC", narrative: "Restaura los cómputos reales de pobreza, indigencia y brecha de ingresos.", topics: ["Línea de Pobreza", "Coeficiente Gini", "Canasta Básica INDEC", "NBI"] },
+      { id: 81, year: 5, title: "La Textil del Barrio no se Cierra", sub: "Fábricas Recuperadas", narrative: "Evita el remate patronal reactivando la planta textil bajo control de una cooperativa obrera.", topics: ["Fábricas Recuperadas (IMPA)", "Movimientos Sociales", "Cooperativismo", "Economía Popular"] },
+      { id: 82, year: 5, title: "Sistema Urbano y Centralismo", sub: "Radialidad Ferroviaria", narrative: "Reconfigura la red de transporte para conectar ciudades del interior sin pasar por Buenos Aires.", topics: ["Macrocefalia", "Radialidad", "Eje Industrial", "Segregación Urbana"] },
+      { id: 83, year: 5, title: "Hábitat Popular y Derecho a la Ciudad", sub: "ReNaBaP e Integración", narrative: "Inundación en un barrio vulnerable: aplica la Ley 27.453 para abrir calles e integrar servicios.", topics: ["ReNaBaP", "Ley 27.453", "Villas y Asentamientos", "Déficit Habitacional"] },
+      { id: 84, year: 5, title: "Urbanizaciones Cerradas", sub: "Countries en Humedales", narrative: "Audita barrios privados levantados sobre planicies de inundación en la Zona Norte bonaerense.", topics: ["Barrios Privados", "Destrucción de Humedales", "Autosegregación", "Privatización Costera"] },
+      { id: 85, year: 5, title: "Pueblos Fantasmas y Ramales Cerrados", sub: "Clausura Ferroviaria", narrative: "1993: 'Ramal que para, ramal que cierra'. Reconstruye el telégrafo de una estación olvidada.", topics: ["Privatización de Trenes", "Éxodo Ferroviario", "Encarecimiento de Fletes", "Pueblos Aislados"] },
+      { id: 86, year: 5, title: "Del Monocultivo al Agroturismo", sub: "Reconversión de Chacras", narrative: "Salva una chacra endeudada sumando producción hortícola diversificada y turismo rural.", topics: ["Agroturismo", "Diversificación Productiva", "Circuitos Cortos", "Pluriactividad"] },
+      { id: 87, year: 5, title: "El Parque no se Vende, se Defiende", sub: "Espacios Verdes Urbanos", narrative: "La asamblea barrial impide la venta de un pulmón verde para construir torres premium.", topics: ["Conflictos Ambientales Urbanos", "Islas de Calor", "Audiencias Públicas", "Espacio Público"] },
+
+      // EVALUACIONES
+      { id: 88, year: 'eval', title: "Evaluación Diagnóstica 1° Año", sub: "Módulos 1 a 7", narrative: "20 preguntas analíticas de Verdadero o Falso sobre cartografía, relieve y biomas.", topics: ["Coordenadas", "Relieve", "Clima", "Biomas"] },
+      { id: 89, year: 'eval', title: "¿Quién Quiere ser el Geógrafo Millonario? (1° Año)", sub: "Salas 8 a 15", narrative: "Trivia evaluativa gamificada con comodines (50/50, consulta al experto y descarte).", topics: ["Cuencas", "Riesgos", "Suelos", "Ozono", "IDH"] },
+      { id: 90, year: 'eval', title: "Evaluación Trayecto Medio 2° Año", sub: "Salas 1 a 7 de América", narrative: "50 preguntas multiple choice sobre geografía física, cartografía y pueblos originarios.", topics: ["Relieve de América", "Cuencas Fluviales", "Climogramas"] },
+      { id: 91, year: 'eval', title: "Evaluación Cierre 2° Año", sub: "Salas 8 a 15 de América", narrative: "50 preguntas analíticas sobre modelos económicos, extractivismo y urbanización.", topics: ["Megaminería", "Metrópolis", "MERCOSUR", "Litio"] },
+      { id: 92, year: 'eval', title: "Gran Integrador Argentina I (3° Año)", sub: "Salas 1 a 10", narrative: "50 reactivos sobre tratados territoriales, mar argentino, relieve y ecorregiones.", topics: ["Límites 1881", "Sector Antártico", "Parques Nacionales", "Zonda"] },
+      { id: 93, year: 'eval', title: "Gran Integrador Argentina II (3° Año)", sub: "Salas 11 a 19", narrative: "50 reactivos sobre circuitos productivos, energía, Vaca Muerta, AMBA e industrias.", topics: ["Soja y Puertos", "Vaca Muerta", "NBI", "Frente Fluvial"] }
+    ];
+
+    function renderCatalogRooms() {
+      const groups = [
+        { y: 1, el: 'list-c1' },
+        { y: 2, el: 'list-c2' },
+        { y: 3, el: 'list-c3' },
+        { y: 4, el: 'list-c4' },
+        { y: 5, el: 'list-c5' },
+        { y: 'eval', el: 'list-cEval' }
+      ];
+
+      groups.forEach(g => {
+        const cont = document.getElementById(g.el);
+        cont.innerHTML = '';
+        const list = catalogDB.filter(x => x.year === g.y);
+
+        list.forEach(r => {
+          const card = document.createElement('div');
+          card.className = 'card-room-item';
+          card.onclick = () => showRoomCard(r.id);
+          card.innerHTML = `
+            <div>
+              <div style="font-size:0.8rem; font-weight:800; color:var(--dark);">Sala ${r.id}: ${r.title}</div>
+              <div style="font-size:0.7rem; color:var(--accent); font-weight:700;">${r.sub}</div>
+            </div>
+            <span style="font-weight:800; color:var(--primary);">›</span>
+          `;
+          cont.appendChild(card);
+        });
+      });
+    }
+
+    function toggleAcc(id) {
+      document.getElementById(id).classList.toggle('open');
+    }
+
+    function showRoomCard(id) {
+      const r = catalogDB.find(x => x.id === id);
+      if (!r) return;
+
+      const yLabel = r.year === 'eval' ? 'Módulo Integrador' : `${r.year}° Año`;
+      const card = document.getElementById('roomDetailCard');
+
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+          <span style="background:#e0f2fe; color:#0369a1; font-size:0.7rem; font-weight:800; padding:0.2rem 0.5rem; border-radius:6px;">${yLabel}</span>
+          <span style="font-size:0.75rem; font-weight:800; color:var(--text-muted);">SALA ${r.id} DE 93</span>
+        </div>
+        <h3 style="font-size:1.15rem; font-weight:800; color:var(--dark); margin-bottom:0.25rem;">${r.title}</h3>
+        <div style="font-size:0.8rem; color:var(--accent); font-weight:700; margin-bottom:0.85rem;">${r.sub}</div>
+
+        <div style="background:#f8fafc; border-left:3px solid var(--primary); padding:0.65rem; border-radius:8px; font-size:0.78rem; font-style:italic; margin-bottom:1rem;">
+          "${r.narrative}"
+        </div>
+
+        <div style="font-size:0.72rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.4rem;">
+          Temas Curriculares Evaluados:
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-bottom:1.25rem;">
+          ${r.topics.map(t => `<span style="background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; font-size:0.7rem; font-weight:700; padding:0.2rem 0.5rem; border-radius:6px;">${t}</span>`).join('')}
+        </div>
+
+        <button class="btn-verify" onclick="goBackScreen()">← Volver al Catálogo</button>
+      `;
+
+      openNavScreen('room-detail', `Sala ${r.id}`);
+    }
+
+    function searchCatalog() {
+      const q = document.getElementById('catSearch').value.toLowerCase().trim();
+      const accs = document.querySelectorAll('.acc-item');
+
+      if (q === '') {
+        renderCatalogRooms();
+        return;
+      }
+
+      accs.forEach(a => a.classList.add('open'));
+
+      const groups = [
+        { y: 1, el: 'list-c1' },
+        { y: 2, el: 'list-c2' },
+        { y: 3, el: 'list-c3' },
+        { y: 4, el: 'list-c4' },
+        { y: 5, el: 'list-c5' },
+        { y: 'eval', el: 'list-cEval' }
+      ];
+
+      groups.forEach(g => {
+        const cont = document.getElementById(g.el);
+        cont.innerHTML = '';
+        const list = catalogDB.filter(x => x.year === g.y);
+        const matches = list.filter(r => 
+          r.title.toLowerCase().includes(q) ||
+          r.sub.toLowerCase().includes(q) ||
+          r.topics.some(t => t.toLowerCase().includes(q))
+        );
+
+        if (matches.length === 0) {
+          cont.innerHTML = '<div style="font-size:0.72rem; color:#94a3b8; padding:0.25rem 0;">Sin coincidencias.</div>';
+        } else {
+          matches.forEach(r => {
+            const card = document.createElement('div');
+            card.className = 'card-room-item';
+            card.onclick = () => showRoomCard(r.id);
+            card.innerHTML = `
+              <div>
+                <div style="font-size:0.8rem; font-weight:800; color:var(--dark);">Sala ${r.id}: ${r.title}</div>
+                <div style="font-size:0.7rem; color:var(--accent); font-weight:700;">${r.sub}</div>
+              </div>
+              <span style="font-weight:800; color:var(--primary);">›</span>
+            `;
+            cont.appendChild(card);
+          });
+        }
+      });
+    }
+
+    /* =====================================================================
+       4. SALA DE ESCAPE EN VIVO (MECÁNICAS Y 4 ENIGMAS)
+       ===================================================================== */
+    let currentScore = 10.0;
+    let timerInterval = null;
+    let secondsLeft = 600; // 10 minutos
+    let penaltyTotal = 0.0;
+
+    // Estado de los 4 enigmas
+    const enigmaSolved = [false, false, false, false];
+    const enigmaScore = [2.5, 2.5, 2.5, 2.5]; // 2.5 pts cada uno
+    const digitsWon = ["-", "-", "-", "-"];
+
+    // Enigma 1 (V/F) Respuestas de usuario y oficiales: [V, F, V, F, V]
+    const vfUserAnswers = [null, null, null, null, null];
+    const vfCorrectAnswers = [true, false, true, false, true];
+
+    // Enigma 2 (Secuencia)
+    let reorderItems = [
+      { id: 2, text: "2. El aire asciende rápidamente, se enfría y descarga nevadas." },
+      { id: 4, text: "4. Desciende por Sotavento calentándose a gran velocidad por fricción." },
+      { id: 1, text: "1. Viento húmedo del Pacífico choca contra los Andes (Barlovento)." },
+      { id: 3, text: "3. Cruza la cumbre cordillerana frío y totalmente seco." }
+    ];
+
+    // Enigma 4 (Radar táctil de factores)
+    const tactileSelection = [false, false, false, false, false, false];
+    const tactileCorrect = [true, false, true, false, true, true]; // Índices 0, 2, 4, 5 son reales
+
+    function checkStudentLogin() {
+      const val = document.getElementById('studentPassInput').value.trim().toUpperCase();
+      const err = document.getElementById('loginError');
+
+      if (val === "VIENTOS") {
+        err.style.display = 'none';
+        startEscapeGame();
+      } else {
+        err.style.display = 'block';
+      }
+    }
+
+    function startEscapeGame() {
+      openNavScreen('sala-game', 'Sala en Vivo (10 min)');
+      startTimer();
+      renderReorderList();
+    }
+
+    function startTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      secondsLeft = 600;
+
+      timerInterval = setInterval(() => {
+        secondsLeft--;
+        if (secondsLeft <= 0) {
+          clearInterval(timerInterval);
+          alert("⏱️ ¡TIEMPO AGOTADO! El globo no logró desplegar el paracaídas a tiempo. Reinicia la simulación.");
+          openNavScreen('sala-login', 'Sala de Prueba');
+        } else {
+          const m = String(Math.floor(secondsLeft / 60)).padStart(2, '0');
+          const s = String(secondsLeft % 60).padStart(2, '0');
+          document.getElementById('escapeTimer').innerText = `${m}:${s}`;
+        }
+      }, 1000);
+    }
+
+    function updateLiveScoreDisplay() {
+      const total = (enigmaScore[0] + enigmaScore[1] + enigmaScore[2] + enigmaScore[3]) - penaltyTotal;
+      currentScore = Math.max(0, Math.min(10, total));
+      document.getElementById('liveScore').innerText = `${currentScore.toFixed(2)} / 10 pts`;
+    }
+
+    // Modal de apuntes
+    function toggleDossier(open) {
+      const modal = document.getElementById('modalDossier');
+      if (open) modal.classList.add('open');
+      else modal.classList.remove('open');
+    }
+
+    // Pistas
+    function useHint(enigmaNum, hintLevel) {
+      const alertBox = document.getElementById(`hint-text-${enigmaNum}`);
+      alertBox.style.display = 'block';
+
+      if (hintLevel === 1) {
+        // Pista 1: Gratis
+        const hints1 = [
+          "Recuerda que en la montaña la temperatura disminuye al subir (gradiente térmico vertical).",
+          "El proceso comienza siempre en el Océano Pacífico antes de tocar la cordillera.",
+          "El Río de la Plata se orienta al Sudeste: si el viento sopla de allí, tapona la salida de agua.",
+          "Factores geográficos son elementos permanentes de la Tierra, no fenómenos astronómicos ni transporte."
+        ];
+        alertBox.innerHTML = `💡 <strong>Pista 1 (Gratis):</strong> ${hints1[enigmaNum - 1]}`;
+      } else if (hintLevel === 2) {
+        // Pista 2: Descuenta 0.25 pts
+        penaltyTotal += 0.25;
+        updateLiveScoreDisplay();
+        const hints2 = [
+          "El Zonda es húmedo al nacer y la Sudestada trae humedad oceánica atlántica (no días secos).",
+          "Secuencia: 1° Barlovento → 2° Lluvia en ascenso → 3° Cima seca → 4° Sotavento caliente.",
+          "Opciones exactas: Océano Atlántico | Río de la Plata | Inundaciones ribereñas.",
+          "Los 4 reales son: Latitud, Altitud, Disposición del Relieve y Distancia al Mar."
+        ];
+        alertBox.innerHTML = `⚠️ <strong>Pista 2 (-0.25 pts aplicados):</strong> ${hints2[enigmaNum - 1]}`;
+      } else if (hintLevel === 3) {
+        // Pista 3: Entrega respuesta, anula puntos de este enigma
+        enigmaScore[enigmaNum - 1] = 0; // 0 puntos ganados en este enigma
+        updateLiveScoreDisplay();
+
+        const hints3 = [
+          "Solución: 1:V, 2:F, 3:V, 4:F, 5:V.",
+          "Solución: Ordena los ítems en secuencia 1, 2, 3, 4 con las flechas.",
+          "Solución: Selecciona 'Atlántico', 'Río de la Plata' e 'inundaciones ribereñas'.",
+          "Solución: Marca Latitud, Altitud, Relieve y Distancia al Mar (desmarca lunas y trenes)."
+        ];
+        alertBox.innerHTML = `🚨 <strong>Pista 3 (Respuesta revelada - 0 pts para este enigma):</strong> ${hints3[enigmaNum - 1]}`;
+      }
+    }
+
+    // --- ENIGMA 1 ---
+    function setVF(index, value, btn) {
+      vfUserAnswers[index] = value;
+      const parent = btn.parentElement;
+      parent.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    }
+
+    function verifyE1() {
+      if (enigmaSolved[0]) return;
+      const allDone = vfUserAnswers.every(x => x !== null);
+      if (!allDone) {
+        alert("Completa los 5 reportes (V o F) antes de calibrar.");
+        return;
+      }
+
+      const isCorrect = vfUserAnswers.every((ans, idx) => ans === vfCorrectAnswers[idx]);
+      if (isCorrect) {
+        enigmaSolved[0] = true;
+        digitsWon[0] = "7";
+        document.getElementById('tag-e1').innerText = "DÍGITO 1: [ 7 ] ✅";
+        document.getElementById('tag-e1').style.background = "#dcfce7";
+        document.getElementById('tag-e1').style.color = "#15803d";
+        document.getElementById('d1').value = "7";
+        alert("🎉 ¡Sector 01 Calibrado! Has desbloqueado el primer dígito: [ 7 ].");
+      } else {
+        alert("❌ Hay afirmaciones incorrectas en la telemetría. Consulta el dossier o pide una pista.");
+      }
+    }
+
+    // --- ENIGMA 2 ---
+    function renderReorderList() {
+      const container = document.getElementById('reorderList');
+      container.innerHTML = '';
+      reorderItems.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'reorder-item';
+        div.innerHTML = `
+          <span>${item.text}</span>
+          <div class="arrow-btns">
+            <button onclick="moveItem(${index}, -1)">▲</button>
+            <button onclick="moveItem(${index}, 1)">▼</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function moveItem(index, direction) {
+      const newIndex = index + direction;
+      if (newIndex < 0 || newIndex >= reorderItems.length) return;
+      const temp = reorderItems[index];
+      reorderItems[index] = reorderItems[newIndex];
+      reorderItems[newIndex] = temp;
+      renderReorderList();
+    }
+
+    function verifyE2() {
+      if (enigmaSolved[1]) return;
+      const isCorrect = reorderItems[0].id === 1 && reorderItems[1].id === 2 && reorderItems[2].id === 3 && reorderItems[3].id === 4;
+
+      if (isCorrect) {
+        enigmaSolved[1] = true;
+        digitsWon[1] = "3";
+        document.getElementById('tag-e2').innerText = "DÍGITO 2: [ 3 ] ✅";
+        document.getElementById('tag-e2').style.background = "#dcfce7";
+        document.getElementById('tag-e2').style.color = "#15803d";
+        document.getElementById('d2').value = "3";
+        alert("🎉 ¡Sector 02 Validado! Has desbloqueado el segundo dígito: [ 3 ].");
+      } else {
+        alert("❌ El orden del ciclo térmico es incorrecto. Recuerda: Barlovento → Ascenso → Cima → Sotavento.");
+      }
+    }
+
+    // --- ENIGMA 3 ---
+    function verifyE3() {
+      if (enigmaSolved[2]) return;
+      const s1 = document.getElementById('sel-e3-1').value;
+      const s2 = document.getElementById('sel-e3-2').value;
+      const s3 = document.getElementById('sel-e3-3').value;
+
+      if (s1 === "atlantico" && s2 === "rio_plata" && s3 === "inundaciones") {
+        enigmaSolved[2] = true;
+        digitsWon[2] = "9";
+        document.getElementById('tag-e3').innerText = "DÍGITO 3: [ 9 ] ✅";
+        document.getElementById('tag-e3').style.background = "#dcfce7";
+        document.getElementById('tag-e3').style.color = "#15803d";
+        document.getElementById('d3').value = "9";
+        alert("🎉 ¡Sector 03 Confirmado! Has desbloqueado el tercer dígito: [ 9 ].");
+      } else {
+        alert("❌ Palabras incorrectas en el informe. Revisa la influencia del Río de la Plata y el Atlántico en la carpeta de apuntes.");
+      }
+    }
+
+    // --- ENIGMA 4 ---
+    function toggleTactile(index) {
+      tactileSelection[index] = !tactileSelection[index];
+      const btn = document.getElementById(`tb-${index}`);
+      if (tactileSelection[index]) btn.classList.add('active');
+      else btn.classList.remove('active');
+    }
+
+    function verifyE4() {
+      if (enigmaSolved[3]) return;
+      const isCorrect = tactileSelection.every((val, idx) => val === tactileCorrect[idx]);
+
+      if (isCorrect) {
+        enigmaSolved[3] = true;
+        digitsWon[3] = "4";
+        document.getElementById('tag-e4').innerText = "DÍGITO 4: [ 4 ] ✅";
+        document.getElementById('tag-e4').style.background = "#dcfce7";
+        document.getElementById('tag-e4').style.color = "#15803d";
+        document.getElementById('d4').value = "4";
+        alert("🎉 ¡Sector 04 Sincronizado! Has desbloqueado el cuarto dígito: [ 4 ].");
+      } else {
+        alert("❌ Selección incorrecta. Debes marcar ÚNICAMENTE los 4 factores reales del clima (desmarca distractores).");
+      }
+    }
+
+    // --- CANDADO FINAL ---
+    function checkFinalLock() {
+      const d1 = document.getElementById('d1').value.trim();
+      const d2 = document.getElementById('d2').value.trim();
+      const d3 = document.getElementById('d3').value.trim();
+      const d4 = document.getElementById('d4').value.trim();
+      const code = `${d1}${d2}${d3}${d4}`;
+
+      const msg = document.getElementById('finalLockMsg');
+
+      if (code === "7394") {
+        clearInterval(timerInterval);
+        msg.style.color = "#34d399";
+        msg.innerHTML = "✅ ¡CÓDIGO CORRECTO! Paracaídas desplegado con éxito.";
+        
+        setTimeout(() => {
+          showFinalActa();
+        }, 1000);
+      } else {
+        msg.style.color = "#f87171";
+        msg.innerHTML = "❌ Código de paracaídas inválido. Revisa los 4 sectores.";
+      }
+    }
+
+    function showFinalActa() {
+      openNavScreen('acta-final', 'Acta Oficial');
+      document.getElementById('actaFinalGrade').innerText = `${currentScore.toFixed(2)} / 10`;
+      
+      const m = String(Math.floor(secondsLeft / 60)).padStart(2, '0');
+      const s = String(secondsLeft % 60).padStart(2, '0');
+      document.getElementById('actaTimeRemaining').innerText = `Tiempo sobrante: ${m}:${s}`;
+      document.getElementById('acta-penalties').innerText = `-${penaltyTotal.toFixed(2)} pts`;
+
+      document.getElementById('acta-res-1').innerText = enigmaScore[0] > 0 ? "Correcto (+2.5 pts)" : "Resuelto con Pista 3 (0 pts)";
+      document.getElementById('acta-res-2').innerText = enigmaScore[1] > 0 ? "Correcto (+2.5 pts)" : "Resuelto con Pista 3 (0 pts)";
+      document.getElementById('acta-res-3').innerText = enigmaScore[2] > 0 ? "Correcto (+2.5 pts)" : "Resuelto con Pista 3 (0 pts)";
+      document.getElementById('acta-res-4').innerText = enigmaScore[3] > 0 ? "Correcto (+2.5 pts)" : "Resuelto con Pista 3 (0 pts)";
+    }
+
+    /* =====================================================================
+       5. BOTÓN FLOTANTE "VOLVER ARRIBA"
+       ===================================================================== */
+    const mainScreenEl = document.getElementById('mainScreen');
+    const btnTopEl = document.getElementById('btnScrollTop');
+
+    mainScreenEl.addEventListener('scroll', () => {
+      if (mainScreenEl.scrollTop > 200) {
+        btnTopEl.style.display = 'flex';
+      } else {
+        btnTopEl.style.display = 'none';
+      }
+    });
+
+    function scrollPhoneTop() {
+      mainScreenEl.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Inicializar catálogo al cargar
+    window.addEventListener('DOMContentLoaded', () => {
+      renderCatalogRooms();
+    });
+  </script>
+</body>
+</html>
